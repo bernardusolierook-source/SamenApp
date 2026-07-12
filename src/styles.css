@@ -3,7 +3,7 @@
 :root{ --bg:#E7EAE4; --surface:#FBFAF7; --col:#F1F0EA; --ink:#232A26; --soft:#5C645E; --line:#D9DAD2; --line-soft:#E5E5DD; }
 *{box-sizing:border-box}
 html,body,#root{margin:0;min-height:100%}
-body{font-family:'Hanken Grotesk',system-ui,sans-serif;color:var(--ink);background:var(--bg);-webkit-font-smoothing:antialiased}
+body{font-family:'Hanken Grotesk',system-ui,sans-serif;color:var(--ink);background:radial-gradient(900px 380px at 50% -60px, rgba(201,138,58,.16), transparent 62%) no-repeat, var(--bg);-webkit-font-smoothing:antialiased}
 :focus-visible{outline:2px solid var(--ink);outline-offset:2px;border-radius:4px}
 .disp{font-family:'Bricolage Grotesque',sans-serif}
 button{font-family:inherit}
@@ -11,7 +11,8 @@ button{font-family:inherit}
 .wrap{max-width:1180px;margin:0 auto;padding:22px 18px 90px}
 .top{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:6px}
 .brand{font-family:'Bricolage Grotesque';font-weight:800;font-size:30px;letter-spacing:-.02em;line-height:1}
-.tag{color:var(--soft);font-size:13.5px;margin-top:5px}
+.brand::after{content:"";display:block;height:3px;width:58px;border-radius:2px;margin-top:7px;background:linear-gradient(90deg,#1F6E6B,#8A4A6B)}
+.tag{color:var(--soft);font-size:13.5px;margin-top:8px}
 .tools{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .seg{display:inline-flex;background:var(--col);border:1px solid var(--line);border-radius:999px;padding:3px}
 .seg button{border:0;background:transparent;font-weight:600;font-size:13.5px;color:var(--soft);padding:6px 14px;border-radius:999px;cursor:pointer}

@@ -160,9 +160,18 @@ export default function App() {
   return (
     <div className="wrap">
       <div className="top">
-        <div>
-          <div className="brand">Samen</div>
-          <div className="tag">Elke taak van bedenken tot klaar — op één plek, met één eigenaar.</div>
+        <div className="brandrow">
+          <svg className="logomark" width="40" height="40" viewBox="0 0 64 64" aria-hidden="true">
+            <rect x="2" y="2" width="60" height="60" rx="15" fill="#232A26" />
+            <clipPath id="lm"><circle cx="27" cy="27" r="14.5" /></clipPath>
+            <circle cx="27" cy="27" r="14.5" fill="#2E9A83" />
+            <circle cx="37" cy="37" r="14.5" fill="#AE6389" />
+            <circle cx="37" cy="37" r="14.5" fill="#6E7E86" clipPath="url(#lm)" />
+          </svg>
+          <div>
+            <div className="brand">Samen</div>
+            <div className="tag">Elke taak van bedenken tot klaar — op één plek, met één eigenaar.</div>
+          </div>
         </div>
         <div className="tools">
           <div className="seg">

@@ -10,6 +10,8 @@ button{font-family:inherit}
 
 .wrap{max-width:1180px;margin:0 auto;padding:22px 18px 90px}
 .top{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:6px}
+.brandrow{display:flex;align-items:flex-start;gap:12px}
+.logomark{flex:none;display:block;border-radius:14px;margin-top:3px}
 .brand{font-family:'Bricolage Grotesque';font-weight:800;font-size:30px;letter-spacing:-.02em;line-height:1}
 .brand::after{content:"";display:block;height:3px;width:58px;border-radius:2px;margin-top:7px;background:linear-gradient(90deg,#1F6E6B,#8A4A6B)}
 .tag{color:var(--soft);font-size:13.5px;margin-top:8px}

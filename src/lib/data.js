@@ -87,7 +87,15 @@ export async function getGoogleLink(memberId) {
     .select("member_id, gmail_enabled, connected_at").eq("member_id", memberId).maybeSingle();
   return data || null;
 }
-export const saveGoogleLink = (row) => supabase.from("google_credentials").upsert(row);
+export async function saveGoogleLink(row) {
+  // Behoud bestaande refresh_token als er nu geen nieuwe is meegegeven.
+  if (!row.refresh_token) {
+    const { data } = await supabase.from("google_credentials")
+      .select("refresh_token").eq("member_id", row.member_id).maybeSingle();
+    if (data?.refresh_token) row.refresh_token = data.refresh_token;
+  }
+  return supabase.from("google_credentials").upsert(row);
+}
 export const removeGoogleLink = (memberId) => supabase.from("google_credentials").delete().eq("member_id", memberId);
 
 // Roept de Edge Functions aan (server-side sync met Google).

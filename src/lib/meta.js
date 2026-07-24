@@ -40,6 +40,57 @@ export function distribution(items, members) {
 }
 export const pct = (n, total) => (total ? Math.round((n / total) * 100) : 0);
 
+
+export const BOTH_KEY = "both";
+
+// ── verlopen ─────────────────────────────────────────────────────────────
+export function isOverdue(task) {
+  if (!task || task.stage === "done") return false;
+  const d = task.due_at || task.scheduled_at;
+  if (!d) return false;
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  return new Date(d) < today;
+}
+
+// ── herhaling ────────────────────────────────────────────────────────────
+export const RECUR_UNITS = [
+  { unit: "day", label: "dag" },
+  { unit: "week", label: "week" },
+  { unit: "month", label: "maand" },
+  { unit: "year", label: "jaar" },
+];
+
+export function recurLabel(task) {
+  if (!task?.recur_interval || !task?.recur_unit) return null;
+  const u = RECUR_UNITS.find((x) => x.unit === task.recur_unit);
+  const n = task.recur_interval;
+  if (!u) return null;
+  return n === 1 ? `elke ${u.label}` : `elke ${n} ${u.label}${u.unit === "day" ? "en" : u.unit === "week" ? "en" : "en"}`;
+}
+
+// Volgende datum in een reeks: telkens interval optellen tot we in de toekomst zitten.
+export function nextOccurrence(fromISO, interval, unit) {
+  const d = fromISO ? new Date(fromISO) : new Date();
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  let guard = 0;
+  do {
+    if (unit === "day") d.setDate(d.getDate() + interval);
+    else if (unit === "week") d.setDate(d.getDate() + interval * 7);
+    else if (unit === "month") d.setMonth(d.getMonth() + interval);
+    else if (unit === "year") d.setFullYear(d.getFullYear() + interval);
+    guard += 1;
+  } while (d < today && guard < 500);
+  return d.toISOString();
+}
+
+// ── tijd ─────────────────────────────────────────────────────────────────
+export function fmtMinutes(m) {
+  if (m == null) return null;
+  if (m < 60) return `${m} min`;
+  const h = Math.floor(m / 60), r = m % 60;
+  return r ? `${h}u ${r}m` : `${h}u`;
+}
+
 export const STARTER_DOMAINS = [
   { name: "Avondeten doordeweeks", category: "home", cadence: "doorlopend", standard: "Plan voor 5 avonden; niemand staat om 17u te bedenken 'wat eten we'." },
   { name: "Boodschappen", category: "home", cadence: "wekelijks", standard: "Vaste basis in huis, lijst aangevuld vóór het weekend." },

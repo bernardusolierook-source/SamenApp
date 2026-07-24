@@ -39,9 +39,10 @@ export async function loadDomains(hhId) {
   const { data } = await supabase.from("domains").select("*").eq("household_id", hhId).order("created_at");
   return data || [];
 }
-export async function loadTasks(hhId) {
+export async function loadTasks(hhId, archived = false) {
   const { data } = await supabase.from("tasks")
     .select("*, checklist_items(*), task_sources(*)").eq("household_id", hhId)
+    .eq("archived", archived)
     .order("created_at", { ascending: false });
   return (data || []).map((t) => ({
     ...t,
@@ -69,6 +70,37 @@ export const addChecklistItem = (taskId, text, position) =>
   supabase.from("checklist_items").insert({ task_id: taskId, text, position });
 export const updateChecklistItem = (id, patch) => supabase.from("checklist_items").update(patch).eq("id", id);
 export const deleteChecklistItem = (id) => supabase.from("checklist_items").delete().eq("id", id);
+
+
+// ── archief ──────────────────────────────────────────────────────────────
+export const setTaskArchived = (id, archived) => supabase.from("tasks").update({ archived }).eq("id", id);
+export const trimDoneTasks = (hhId) => supabase.rpc("trim_done_tasks", { p_household: hhId });
+export async function countArchived(hhId) {
+  const { count } = await supabase.from("tasks")
+    .select("id", { count: "exact", head: true }).eq("household_id", hhId).eq("archived", true);
+  return count || 0;
+}
+
+// ── google ───────────────────────────────────────────────────────────────
+export async function getGoogleLink(memberId) {
+  const { data } = await supabase.from("google_credentials")
+    .select("member_id, gmail_enabled, connected_at").eq("member_id", memberId).maybeSingle();
+  return data || null;
+}
+export const saveGoogleLink = (row) => supabase.from("google_credentials").upsert(row);
+export const removeGoogleLink = (memberId) => supabase.from("google_credentials").delete().eq("member_id", memberId);
+
+// Roept de Edge Functions aan (server-side sync met Google).
+export async function runGoogleSync(householdId) {
+  const { data, error } = await supabase.functions.invoke("google-sync", { body: { household_id: householdId } });
+  if (error) throw error;
+  return data;
+}
+export async function runGmailImport(householdId) {
+  const { data, error } = await supabase.functions.invoke("gmail-import", { body: { household_id: householdId } });
+  if (error) throw error;
+  return data;
+}
 
 // ── realtime ──
 export function subscribe(hhId, onChange) {

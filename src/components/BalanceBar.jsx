@@ -10,6 +10,7 @@ function PersonName({ person, align, onRename }) {
     return (
       <input className="nameinp" autoFocus value={v}
         onChange={(e) => setV(e.target.value)}
+        onClick={(e) => e.stopPropagation()}
         onBlur={() => { onRename(v.trim() || person.name); setEditing(false); }}
         onKeyDown={(e) => { if (e.key === "Enter") e.currentTarget.blur(); }} />
     );
@@ -23,8 +24,8 @@ function PersonName({ person, align, onRename }) {
   );
 }
 
-// counts = { both, [memberId]: n }, total = som
-export default function BalanceBar({ label, people, counts, total, onRename }) {
+// counts = { both, [memberId]: n }. onPick(key) maakt de segmenten klikbaar als filter.
+export default function BalanceBar({ label, people, counts, total, onRename, onPick, active }) {
   if (people.length < 2)
     return (
       <div className="balance">
@@ -39,10 +40,20 @@ export default function BalanceBar({ label, people, counts, total, onRename }) {
   const t = total || 0;
   const pa = pct(ca, t), pb = pct(cb, t), pboth = pct(cboth, t);
   const showBoth = cboth > 0;
+  const clickable = !!onPick;
 
   const note = t === 0
     ? "nog niets verdeeld"
     : `${a.name} ${pa}%${showBoth ? ` · Beide ${pboth}%` : ""} · ${b.name} ${pb}%`;
+
+  const seg = (key, cls, basis, color, children) => (
+    <div className={`seg2 ${cls}`} style={{ flexBasis: `${basis}%`, background: color, cursor: clickable ? "pointer" : "default" }}
+      data-active={active === key ? 1 : 0}
+      onClick={clickable ? () => onPick(active === key ? null : key) : undefined}
+      title={clickable ? "Klik om het bord hierop te filteren" : undefined}>
+      {children}
+    </div>
+  );
 
   return (
     <div className="balance">
@@ -51,19 +62,14 @@ export default function BalanceBar({ label, people, counts, total, onRename }) {
         <span className="note">{note}</span>
       </div>
       <div className="bar">
-        <div className="seg2 l" style={{ flexBasis: `${t ? (ca / t) * 100 : 50}%`, background: a.color }}>
-          <b>{pa}%</b><PersonName person={a} align="l" onRename={onRename ? (n) => onRename(a.id, n) : null} />
-        </div>
-        {showBoth && (
-          <div className="seg2 m" style={{ flexBasis: `${(cboth / t) * 100}%`, background: BOTH_COLOR }}>
-            <b>{pboth}%</b><span className="nm">Beide</span>
-          </div>
-        )}
-        <div className="seg2 r" style={{ flexBasis: `${t ? (cb / t) * 100 : 50}%`, background: b.color }}>
-          <PersonName person={b} align="r" onRename={onRename ? (n) => onRename(b.id, n) : null} /><b>{pb}%</b>
-        </div>
+        {seg(a.id, "l", t ? (ca / t) * 100 : 50, a.color,
+          <><b>{pa}%</b><PersonName person={a} align="l" onRename={onRename ? (n) => onRename(a.id, n) : null} /></>)}
+        {showBoth && seg("both", "m", (cboth / t) * 100, BOTH_COLOR, <><b>{pboth}%</b><span className="nm">Beide</span></>)}
+        {seg(b.id, "r", t ? (cb / t) * 100 : 50, b.color,
+          <><PersonName person={b} align="r" onRename={onRename ? (n) => onRename(b.id, n) : null} /><b>{pb}%</b></>)}
         {!showBoth && <div className="fulcrum" />}
       </div>
+      {clickable && <p className="barhint">Klik op een deel van de balk om het bord daarop te filteren.</p>}
     </div>
   );
 }
